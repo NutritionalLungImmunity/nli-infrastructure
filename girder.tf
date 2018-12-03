@@ -160,11 +160,11 @@ resource "aws_route53_record" "fungal_mailman_mx" {
 
 resource "aws_route53_record" "fungal_mailman_web" {
   zone_id = "${aws_route53_zone.fungal.zone_id}"
-  name    = "${aws_route53_zone.fungal.name}"
-  type    = "A"
+  name    = "mail.${aws_route53_zone.fungal.name}"
+  type    = "CNAME"
   ttl     = "300"
   records = [
-    "66.194.253.19", # public.kitware.com
+    "public.kitware.com",
   ]
 }
 
@@ -176,6 +176,16 @@ resource "aws_route53_record" "fungal_webroot" {
   ttl     = "300"
   records = [
     "lungfungalgrowth.github.io",
+  ]
+}
+
+resource "aws_route53_record" "fungal_webroot_apex" {
+  zone_id = "${aws_route53_zone.fungal.zone_id}"
+  name    = "${aws_route53_zone.fungal.name}"
+  type    = "A"
+  ttl     = "300"
+  records = [
+    "66.194.253.19", # public.kitware.com
   ]
 }
 
