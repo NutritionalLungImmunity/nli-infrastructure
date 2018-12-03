@@ -185,7 +185,11 @@ resource "aws_route53_record" "fungal_webroot_apex" {
   type    = "A"
   ttl     = "300"
   records = [
-    "66.194.253.19", # public.kitware.com
+    # https://help.github.com/articles/setting-up-an-apex-domain/#configuring-a-records-with-your-dns-provider
+    "185.199.108.153",
+    "185.199.109.153",
+    "185.199.110.153",
+    "185.199.111.153",
   ]
 }
 
