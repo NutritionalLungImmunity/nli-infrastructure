@@ -1,27 +1,3 @@
-provider "aws" {
-  region = "us-east-1"
-  allowed_account_ids = ["094446577144"]
-}
-
-terraform {
-  backend "s3" {
-    bucket = "nwb-dev-terraform-state"
-    key    = "fungal:girder"
-    region = "us-east-1"
-  }
-}
-
-### VPC networking ###
-data "aws_vpc" "fungal" {
-  id = "vpc-2025865a"
-}
-
-data "aws_subnet" "fungal" {
-  vpc_id = "${data.aws_vpc.fungal.id}"
-  id = "subnet-eec459c0"
-  # us-east-1a
-}
-
 ### EC2 Girder ###
 resource "aws_instance" "fungal_girder" {
   instance_type = "t3.medium"
@@ -133,63 +109,13 @@ resource "aws_eip" "fungal_girder" {
   }
 }
 
-resource "aws_route53_zone" "fungal" {
-  name = "computational-biology.org"
-}
-
 resource "aws_route53_record" "fungal_girder" {
   zone_id = "${aws_route53_zone.fungal.zone_id}"
-  name    = "data.${aws_route53_zone.fungal.name}"
+  name    = "data"
   type    = "A"
   ttl     = "300"
   records = [
     "${aws_eip.fungal_girder.public_ip}",
-  ]
-}
-
-### External Kitware-managed Mailman ###
-resource "aws_route53_record" "fungal_mailman_mx" {
-  zone_id = "${aws_route53_zone.fungal.zone_id}"
-  name    = "${aws_route53_zone.fungal.name}"
-  type    = "MX"
-  ttl     = "300"
-  records = [
-    "10 66.194.253.19", # public.kitware.com
-  ]
-}
-
-resource "aws_route53_record" "fungal_mailman_web" {
-  zone_id = "${aws_route53_zone.fungal.zone_id}"
-  name    = "mail.${aws_route53_zone.fungal.name}"
-  type    = "CNAME"
-  ttl     = "300"
-  records = [
-    "public.kitware.com",
-  ]
-}
-
-### Web root for GitHub Pages ###
-resource "aws_route53_record" "fungal_webroot" {
-  zone_id = "${aws_route53_zone.fungal.zone_id}"
-  name    = "www.${aws_route53_zone.fungal.name}"
-  type    = "CNAME"
-  ttl     = "300"
-  records = [
-    "lungfungalgrowth.github.io",
-  ]
-}
-
-resource "aws_route53_record" "fungal_webroot_apex" {
-  zone_id = "${aws_route53_zone.fungal.zone_id}"
-  name    = "${aws_route53_zone.fungal.name}"
-  type    = "A"
-  ttl     = "300"
-  records = [
-    # https://help.github.com/articles/setting-up-an-apex-domain/#configuring-a-records-with-your-dns-provider
-    "185.199.108.153",
-    "185.199.109.153",
-    "185.199.110.153",
-    "185.199.111.153",
   ]
 }
 
@@ -214,6 +140,24 @@ resource "aws_volume_attachment" "fungal_girder_mongodb" {
 resource "aws_s3_bucket" "fungal_girder_assetstore" {
   bucket = "fungal-girder-assetstore"
   acl    = "private"
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["POST", "PUT"]
+    allowed_origins = ["https://${aws_route53_record.fungal_girder.fqdn}"]
+    expose_headers  = [
+      # https://docs.aws.amazon.com/AmazonS3/latest/API/RESTCommonResponseHeaders.html
+      "Content-Length",
+      "Connection",
+      "Date",
+      "ETag",
+      "Server",
+      "x-amz-delete-marker",
+      "x-amz-version-id"
+      # Exclude "x-amz-request-id" and "x-amz-id-2", as they are only for debugging
+    ]
+    max_age_seconds = 600
+  }
 }
 
 resource "aws_iam_role_policy" "fungal_girder_assetstore" {
