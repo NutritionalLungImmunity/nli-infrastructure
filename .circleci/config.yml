@@ -1,0 +1,106 @@
+---
+version: 2.1
+
+executors:
+  terraform:
+    docker:
+      - image: hashicorp/terraform:0.12.28
+        entrypoint: ""
+        environment:
+          TF_IN_AUTOMATION: 1
+
+jobs:
+  tf-lint:
+    executor: terraform
+    steps:
+      - checkout
+      - run:
+          name: Lint Terraform
+          command: terraform fmt -recursive -check=true
+
+  tf-plan:
+    executor: terraform
+    steps:
+      - checkout
+      - run:
+          name: Install prerequisites
+          command: |
+            apk add ruby ruby-rdoc
+            gem install terraform_landscape
+      - run:
+          name: Initialize Terraform
+          command: terraform init -input=false
+          working_directory: terraform
+      - run:
+          name: Plan Terraform
+          command: terraform plan -out=tfplan -input=false | landscape
+          working_directory: terraform
+      - persist_to_workspace:
+          root: terraform
+          paths:
+            - .terraform
+            - tfplan
+
+  tf-apply:
+    executor: terraform
+    steps:
+      - checkout
+      - attach_workspace:
+          at: terraform
+      - run:
+          name: Apply Terraform
+          command: terraform apply -input=false tfplan
+          working_directory: terraform
+
+  provision-girder:
+    docker:
+      - image: circleci/python:3.8
+    steps:
+      - checkout
+      - run:
+          name: Install Ansible
+          command: pip install ansible
+      - run:
+          name: Download Ansible roles
+          command: >
+            ansible-galaxy install
+            --role-file=./requirements.yml
+            --roles-path=./roles
+          working_directory: ansible
+      - add_ssh_keys
+      - run:
+          name: Run Ansible Playbook
+          command: >
+            ansible-playbook
+            --inventory=./hosts.yml
+            ./playbook.yml
+          environment:
+            ANSIBLE_HOST_KEY_CHECKING: False
+          working_directory: ansible
+
+workflows:
+  version: 2
+  deploy:
+    jobs:
+      - tf-lint
+      - tf-plan
+      - tf-approve:
+          type: approval
+          requires:
+            - tf-lint
+            - tf-plan
+          filters:
+            branches:
+              only: master
+      - tf-apply:
+          requires:
+            - tf-approve
+          filters:
+            branches:
+              only: master
+      - provision-girder:
+          requires:
+            - tf-apply
+          filters:
+            branches:
+              only: master
