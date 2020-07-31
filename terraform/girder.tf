@@ -12,13 +12,22 @@ module "girder" {
   ssh_public_key  = data.local_file.ssh_public_key.content
 }
 
-output "girder" {
-  value = {
-    server_fqdn            = module.girder.server_fqdn
-    assetstore_bucket_name = module.girder.assetstore_bucket_name
-    smtp_host              = module.girder.smtp_host
-    smtp_port              = module.girder.smtp_port
-    smtp_username          = module.girder.smtp_username
-    smtp_password          = module.girder.smtp_password
-  }
+output "girder_server_fqdn" {
+  value = module.girder.server_fqdn
+}
+output "girder_assetstore_bucket_name" {
+  value = module.girder.assetstore_bucket_name
+}
+output "girder_smtp_host" {
+  value = module.girder.smtp_host
+}
+output "girder_smtp_port" {
+  value = module.girder.smtp_port
+}
+output "girder_smtp_username" {
+  value = module.girder.smtp_username
+}
+output "girder_smtp_pw" {
+  value = module.girder.smtp_password
+  sensitive = true
 }
