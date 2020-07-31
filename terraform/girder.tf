@@ -28,6 +28,6 @@ output "girder_smtp_username" {
   value = module.girder.smtp_username
 }
 output "girder_smtp_pw" {
-  value = module.girder.smtp_password
+  value     = module.girder.smtp_password
   sensitive = true
 }
