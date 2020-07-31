@@ -27,7 +27,7 @@ output "girder_smtp_port" {
 output "girder_smtp_username" {
   value = module.girder.smtp_username
 }
-output "girder_smtp_pw" {
+output "girder_smtp_password" {
   value     = module.girder.smtp_password
   sensitive = true
 }
