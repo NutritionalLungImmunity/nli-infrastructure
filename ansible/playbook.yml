@@ -19,6 +19,8 @@
           - girder-oauth
           - girder-readme
           - girder-sentry
+          - girder-jobs
+          - git+https://github.com/NutritionalLungImmunity/girder-nlisim.git
         virtualenv: "{{ girder_virtualenv }}"
         state: latest
       notify:
