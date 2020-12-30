@@ -6,10 +6,15 @@ module "girder" {
   source  = "girder/girder/aws"
   version = "0.7.0"
 
-  project_slug    = "nli-girder"
+  project_slug    = var.project_slug
   subdomain_name  = "data"
   route53_zone_id = aws_route53_zone.domain.zone_id
   ssh_public_key  = data.local_file.ssh_public_key.content
+}
+
+variable "project_slug" {
+  type    = string
+  default = "nli-girder"
 }
 
 output "girder_server_fqdn" {

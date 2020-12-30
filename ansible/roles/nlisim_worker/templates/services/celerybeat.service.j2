@@ -1,0 +1,24 @@
+[Unit]
+Description=Celery Beat Service
+After=network.target
+
+[Service]
+User={{ ansible_user_id }}
+Group={{ ansible_user_id }}
+StateDirectory=celerybeat
+RuntimeDirectory=celerybeat
+Environment=LC_ALL=C.UTF-8
+Environment=LANG=C.UTF-8
+Environment=STATE_DIRECTORY=/var/lib/celerybeat
+Environment=RUNTIME_DIRECTORY=/run/celerybeat
+Environment=CELERY_BROKER_URL={{ celery_broker_url }}
+ExecStart={{ girder_virtualenv }}/bin/celery \
+  beat \
+  --app girder_nlisim.celery:app \
+  --schedule ${STATE_DIRECTORY}/celerybeat-schedule.db \
+  --pidfile ${RUNTIME_DIRECTORY}/celerybeat.pid \
+  --loglevel info
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

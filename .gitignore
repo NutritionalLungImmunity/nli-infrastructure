@@ -10,4 +10,5 @@ crash.log
 
 **/*.retry
 
-ansible/roles/
+ansible/roles/*
+!ansible/roles/nlisim_worker
