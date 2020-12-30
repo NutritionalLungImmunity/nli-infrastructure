@@ -58,5 +58,5 @@
   roles:
     - role: nlisim_worker
       vars:
-        virtualenv: nli
+        worker_virtualenv: nli
         celery_broker_url: "sqs://"  # keys determined from instance metadata
