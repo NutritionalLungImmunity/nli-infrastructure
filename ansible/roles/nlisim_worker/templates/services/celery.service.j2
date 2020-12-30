@@ -1,0 +1,21 @@
+[Unit]
+Description=Celery Service
+After=network.target
+
+[Service]
+User={{ ansible_user_id }}
+Group={{ ansible_user_id }}
+Environment=LC_ALL=C.UTF-8
+Environment=LANG=C.UTF-8
+Environment=CELERY_BROKER_URL={{ celery_broker_url }}
+ExecStart={{ girder_virtualenv }}/bin/celery \
+  worker \
+  --app girder_nlisim.celery:app \
+  --loglevel info
+# Only SIGTERM the main process
+KillMode=mixed
+TimeoutStopSec=90s
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

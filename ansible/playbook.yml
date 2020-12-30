@@ -1,6 +1,19 @@
 ---
-- name: Deploy Girder
+- name: Common tasks for all hosts
   hosts: all
+  vars:
+    ansible_python_interpreter: auto
+  tasks:
+    - name: Add ssh keys
+      authorized_key:
+        user: ubuntu
+        state: present
+        key: "{{ item }}"
+      with_file:
+        - jon.wain.id_rsa.pub
+
+- name: Deploy Girder
+  hosts: girder
   vars:
     ansible_python_interpreter: auto
   roles:
@@ -26,3 +39,24 @@
       notify:
         - Build Girder web client
         - Restart Girder
+
+    - name: Add celery broker to girder service file
+      lineinfile:
+        path: "/etc/systemd/system/girder.service"
+        line: "Environment=CELERY_BROKER_URL={{ celery_broker_url }}"
+        regexp: "Environment=CELERY_BROKER_URL=.*"
+        state: present
+        insertafter: "^\[Service\]"
+      notify:
+        - Restart Girder
+
+
+- name: Deploy worker
+  hosts: worker
+  vars:
+    ansible_python_interpreter: auto
+  roles:
+    - role: nlisim_worker
+      vars:
+        virtualenv: nli
+        celery_broker_url: "sqs://"  # keys determined from instance metadata
