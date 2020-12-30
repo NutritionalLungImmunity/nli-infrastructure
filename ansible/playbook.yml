@@ -43,10 +43,11 @@
     - name: Add celery broker to girder service file
       lineinfile:
         path: "/etc/systemd/system/girder.service"
-        line: "Environment=CELERY_BROKER_URL={{ celery_broker_url }}"
+        line: "Environment=CELERY_BROKER_URL=sqs://"
         regexp: "Environment=CELERY_BROKER_URL=.*"
         state: present
         insertafter: "^\\[Service\\]"
+      become: true
       notify:
         - Restart Girder
 
