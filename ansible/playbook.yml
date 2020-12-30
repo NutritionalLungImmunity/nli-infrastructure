@@ -46,7 +46,7 @@
         line: "Environment=CELERY_BROKER_URL={{ celery_broker_url }}"
         regexp: "Environment=CELERY_BROKER_URL=.*"
         state: present
-        insertafter: "^\[Service\]"
+        insertafter: "^\\[Service\\]"
       notify:
         - Restart Girder
 
