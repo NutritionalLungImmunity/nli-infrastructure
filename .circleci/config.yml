@@ -39,6 +39,7 @@ jobs:
           root: terraform
           paths:
             - .terraform
+            - .terraform.lock.hcl
             - tfplan
 
   tf-apply:
