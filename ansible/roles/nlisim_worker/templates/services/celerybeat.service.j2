@@ -12,7 +12,7 @@ Environment=LANG=C.UTF-8
 Environment=STATE_DIRECTORY=/var/lib/celerybeat
 Environment=RUNTIME_DIRECTORY=/run/celerybeat
 Environment=CELERY_BROKER_URL={{ celery_broker_url }}
-ExecStart={{ girder_virtualenv }}/bin/celery \
+ExecStart={{ worker_virtualenv }}/bin/celery \
   beat \
   --app girder_nlisim.celery:app \
   --schedule ${STATE_DIRECTORY}/celerybeat-schedule.db \
