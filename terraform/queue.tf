@@ -12,6 +12,16 @@ data "aws_iam_policy_document" "broker_access" {
       "arn:aws:sqs:*:*:worker_*"
     ]
   }
+
+  statement {
+    actions = [
+      "sqs:ListQueues"
+    ]
+
+    resources = [
+      "*"
+    ]
+  }
 }
 
 resource "aws_iam_policy" "broker" {
