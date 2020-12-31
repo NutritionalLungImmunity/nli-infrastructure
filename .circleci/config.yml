@@ -73,6 +73,7 @@ jobs:
           name: Run Ansible Playbook
           command: >
             ansible-playbook
+            --verbose
             --inventory=./hosts.yml
             ./playbook.yml
           environment:
