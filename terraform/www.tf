@@ -1,10 +1,11 @@
 resource "aws_route53_record" "www" {
   zone_id = aws_route53_zone.domain.zone_id
   name    = "www"
-  type    = "CNAME"
+  type    = "A"
   ttl     = "300"
   records = [
-    "nli-landing.netlify.com",
+    # SiteGround hosting
+    "35.208.165.110",
   ]
 }
 
@@ -14,7 +15,7 @@ resource "aws_route53_record" "www_apex" {
   type    = "A"
   ttl     = "300"
   records = [
-    # https://docs.netlify.com/domains-https/custom-domains/configure-external-dns/#configure-an-apex-domain
-    "104.198.14.52",
+    # SiteGround hosting
+    "35.208.165.110",
   ]
 }
