@@ -4,6 +4,6 @@ resource "aws_route53_record" "viewer" {
   type    = "CNAME"
   ttl     = "300"
   records = [
-    "flungui.netlify.com",
+    "lung-fungal-web.pages.dev",
   ]
 }
