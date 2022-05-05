@@ -3,6 +3,8 @@
   hosts: all
   vars:
     ansible_python_interpreter: auto
+    girder_virtualenv: "{{ ansible_facts['user_dir'] }}/.virtualenvs/girder3.9"
+    worker_virtualenv: "{{ ansible_facts['user_dir'] }}/.virtualenvs/girder3.9"
   tasks:
     - name: Add ssh keys
       authorized_key:
@@ -11,11 +13,32 @@
         key: "{{ item }}"
       with_file:
         - jon.wain.id_rsa.pub
+    - name:  Install deadsnakes
+      apt_repository:
+        repo: 'ppa:deadsnakes/ppa'
+      become: true
+      become_user: root
+    - name: Install python3.9 and venv
+      apt:
+       name:
+        - python3.9
+        - python3.9-venv
+       update_cache: yes
+      become: true
+      become_user: root
+    - name: Create virtual environment
+      pip:
+        name: pip
+        version: ">=21.0.1"
+        virtualenv: "{{ girder_virtualenv }}"
+        virtualenv_command: "/usr/bin/python3.9 -m venv"
+
 
 - name: Deploy Girder
   hosts: girder
   vars:
     ansible_python_interpreter: auto
+    girder_virtualenv: "{{ ansible_facts['user_dir'] }}/.virtualenvs/girder3.9"
   roles:
     - role: girder.mongodb
     - role: girder.girder
@@ -56,8 +79,9 @@
   hosts: worker
   vars:
     ansible_python_interpreter: auto
+    worker_virtualenv: "{{ ansible_facts['user_dir'] }}/.virtualenvs/girder3.9"
   roles:
     - role: nlisim_worker
       vars:
-        worker_virtualenv: "/home/{{ ansible_user_id }}/nli"
+        worker_virtualenv: "{{ worker_virtualenv }}"
         celery_broker_url: "sqs://"  # keys determined from instance metadata
