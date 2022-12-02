@@ -9,7 +9,7 @@ resource "aws_instance" "worker" {
 
   root_block_device {
     volume_size = 16
-    volume_type = "gp2"
+    volume_type = "gp3"
   }
 
   tags = {
