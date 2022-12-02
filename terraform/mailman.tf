@@ -5,7 +5,7 @@ resource "aws_route53_record" "mailman_mx" {
   type    = "MX"
   ttl     = "300"
   records = [
-    "10 66.194.253.19", # public.kitware.com
+    "10 50.58.123.183", # public.kitware.com
   ]
 }
 
